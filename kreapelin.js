@@ -2,7 +2,7 @@ const validNumbers = [3, 4, 5, 6, 7, 8, 9];
 const sequenceLength = 116;
 const blockSize = 5;
 
-function generateSequence() {
+export function generateSequence() {
     let sequence = [];
     while (sequence.length < sequenceLength) {
         let num = getRandomNumber();

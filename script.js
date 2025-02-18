@@ -1,51 +1,73 @@
+import { generateSequence } from './kreapelin.js';
+
 const wordDisplay = document.getElementById('word-display');
 const wordInput = document.getElementById('word-input');
 const startButton = document.getElementById('start-button');
 const scoreDisplay = document.getElementById('score');
+const missDisplay = document.createElement('p');
+missDisplay.id = 'miss';
+missDisplay.textContent = 'Miss: 0';
+document.querySelector('.game-container').appendChild(missDisplay);
+const answerCountDisplay = document.createElement('p');
+answerCountDisplay.id = 'answer-count';
+answerCountDisplay.textContent = 'Answers: 0';
+document.querySelector('.game-container').appendChild(answerCountDisplay);
 
-const words = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
-let currentWord = '';
+let sequence = [];
+let currentIndex = 0;
 let score = 0;
-let gameInterval;
+let miss = 0;
+let answerCount = 0;
 
 startButton.addEventListener('click', startGame);
 wordInput.addEventListener('input', checkInput);
-wordInput.addEventListener('keydown', restrictInput);
 
 function startGame() {
+    console.log('startGame');
+    sequence = generateSequence();
+    currentIndex = 0;
     score = 0;
+    miss = 0;
+    answerCount = 0;
     scoreDisplay.textContent = `Score: ${score}`;
+    missDisplay.textContent = `Miss: ${miss}`;
+    answerCountDisplay.textContent = `Answers: ${answerCount}`;
     wordInput.disabled = false;
     wordInput.value = '';
     wordInput.focus();
     startButton.disabled = true;
-    nextWord();
-    gameInterval = setInterval(nextWord, 5000);
+    nextPair();
 }
 
-function nextWord() {
-    currentWord = words[Math.floor(Math.random() * words.length)];
-    wordDisplay.textContent = currentWord;
-    wordInput.value = '';
+function nextPair() {
+    if (currentIndex < sequence.length - 1) {
+        const element1 = sequence[currentIndex];
+        const element2 = sequence[currentIndex + 1];
+        wordDisplay.textContent = `${element1} + ${element2} = ?`;
+        wordInput.value = '';
+        currentIndex++;
+    } else {
+        endGame();
+    }
 }
 
 function checkInput() {
-    if (wordInput.value === currentWord) {
+    const element1 = sequence[currentIndex - 1];
+    const element2 = sequence[currentIndex];
+    const correctAnswer = (element1 + element2) % 10;
+    if (parseInt(wordInput.value) === correctAnswer) {
         score++;
         scoreDisplay.textContent = `Score: ${score}`;
-        nextWord();
+    } else {
+        miss++;
+        missDisplay.textContent = `Miss: ${miss}`;
     }
-}
-
-function restrictInput(event) {
-    const key = event.key;
-    if (!/^[0-9]$/.test(key) && key !== 'Backspace') {
-        event.preventDefault();
-    }
+    answerCount++;
+    answerCountDisplay.textContent = `Answers: ${answerCount}`;
+    nextPair();
 }
 
 function endGame() {
-    clearInterval(gameInterval);
     wordDisplay.textContent = 'Game Over! Press Start to play again.';
     wordInput.disabled = true;
     startButton.disabled = false;
