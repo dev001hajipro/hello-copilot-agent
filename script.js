@@ -10,17 +10,22 @@ missDisplay.textContent = 'Miss: 0';
 document.querySelector('.game-container').appendChild(missDisplay);
 const answerCountDisplay = document.createElement('p');
 answerCountDisplay.id = 'answer-count';
-answerCountDisplay.textContent = 'Answers: 0';
+answerCountDisplay.textContent = '現在の回答数/最大: : 0';
 document.querySelector('.game-container').appendChild(answerCountDisplay);
+const timerDisplay = document.getElementById('timerDisplay');
+const endButton = document.getElementById('end-button');
 
 let sequence = [];
 let currentIndex = 0;
 let score = 0;
 let miss = 0;
 let answerCount = 0;
+let timer;
+let timeLeft = 60;
 
 startButton.addEventListener('click', startGame);
 wordInput.addEventListener('input', checkInput);
+endButton.addEventListener('click', endGame);
 
 function startGame() {
     console.log('startGame');
@@ -29,13 +34,16 @@ function startGame() {
     score = 0;
     miss = 0;
     answerCount = 0;
+    const maxAnswers = sequence.length - 1;
     scoreDisplay.textContent = `Score: ${score}`;
     missDisplay.textContent = `Miss: ${miss}`;
-    answerCountDisplay.textContent = `Answers: ${answerCount}`;
+    answerCountDisplay.textContent = `現在の回答数/最大: ${answerCount}/${maxAnswers}`;
+    timerDisplay.textContent = `Time left: ${timeLeft}s`;
     wordInput.disabled = false;
     wordInput.value = '';
     wordInput.focus();
     startButton.disabled = true;
+    timer = setInterval(updateTimer, 1000);
     nextPair();
 }
 
@@ -63,12 +71,24 @@ function checkInput() {
         missDisplay.textContent = `Miss: ${miss}`;
     }
     answerCount++;
-    answerCountDisplay.textContent = `Answers: ${answerCount}`;
+    const maxAnswers = sequence.length - 1;
+    answerCountDisplay.textContent = `現在の回答数/最大: ${answerCount}/${maxAnswers}`;
     nextPair();
+}
+
+function updateTimer() {
+    timeLeft--;
+    timerDisplay.textContent = `Time left: ${timeLeft}s`;
+    if (timeLeft <= 0) {
+        clearInterval(timer);
+        endGame();
+    }
 }
 
 function endGame() {
     wordDisplay.textContent = 'Game Over! Press Start to play again.';
     wordInput.disabled = true;
     startButton.disabled = false;
+    console.log('timer=', timer);
+    clearInterval(timer);
 }
